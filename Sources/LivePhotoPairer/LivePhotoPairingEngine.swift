@@ -369,12 +369,14 @@ enum LivePhotoPairingEngine {
                 kCMMetadataBaseDataType_SInt8 as String
         ]
         var formatDescription: CMFormatDescription?
-        // FourCC 'stim' == kCMMetadataFormatDescriptionMetadataFormatType_StillImageTime,
-        // which is not exposed to Swift by the SDK.
-        let stillImageTimeFormatType = fourCC("stim")
+        // FourCC 'mebx' (boxed metadata) matches the format Apple uses for the
+        // timed metadata tracks in genuine Live Photo .mov files. The 'stim'
+        // format type is rejected by CMMetadataFormatDescriptionCreate… on
+        // modern SDKs (error -12710), while 'mebx' works.
+        let boxedMetadataFormatType = fourCC("mebx")
         let status = CMMetadataFormatDescriptionCreateWithMetadataSpecifications(
             allocator: nil,
-            metadataType: stillImageTimeFormatType,
+            metadataType: boxedMetadataFormatType,
             metadataSpecifications: [spec] as CFArray,
             formatDescriptionOut: &formatDescription
         )
@@ -442,11 +444,11 @@ enum LivePhotoPairingEngine {
     }
 
     /// Reads the existing `com.apple.quicktime.content.identifier` of a video, if any.
-    static func readVideoContentIdentifier(videoURL: URL) -> String? {
+    static func readVideoContentIdentifier(videoURL: URL) async -> String? {
         let asset = AVURLAsset(url: videoURL)
-        for item in asset.metadata {
-            if item.commonKey == nil,
-               let key = item.key as? String,
+        guard let metadata = try? await asset.load(.metadata) else { return nil }
+        for item in metadata {
+            if let key = item.key as? String,
                key == "com.apple.quicktime.content.identifier",
                let value = item.stringValue {
                 return value
@@ -462,9 +464,9 @@ enum LivePhotoPairingEngine {
         photoURL: URL,
         videoURL: URL,
         expectedIdentifier: String
-    ) -> (photoOK: Bool, videoOK: Bool) {
+    ) async -> (photoOK: Bool, videoOK: Bool) {
         let photoID = readPhotoContentIdentifier(imageURL: photoURL)
-        let videoID = readVideoContentIdentifier(videoURL: videoURL)
+        let videoID = await readVideoContentIdentifier(videoURL: videoURL)
         return (photoID == expectedIdentifier, videoID == expectedIdentifier)
     }
 }
