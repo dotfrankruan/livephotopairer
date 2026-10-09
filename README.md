@@ -146,4 +146,4 @@ Live Photo samples and open-source implementations such as
 
 ## License
 
-MIT
+Apache License 2.0
