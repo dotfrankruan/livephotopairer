@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>LivePhotoPairer</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.dotfrankruan.livephotopairer</string>
+	<string>com.frank-ruan.livephotopairer</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

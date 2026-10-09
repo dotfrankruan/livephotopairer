@@ -31,7 +31,7 @@ bundle: build
 
 ## sign: ad-hoc codesign (no Developer ID / notarization needed)
 sign: bundle
-	codesign --force --deep --sign - --identifier com.dotfrankruan.livephotopairer $(APP)
+	codesign --force --deep --sign - --identifier com.frank-ruan.livephotopairer $(APP)
 	codesign --verify --verbose=1 $(APP)
 	@echo "Built: $(APP)"
 
